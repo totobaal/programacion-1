@@ -1,3 +1,4 @@
+// comentario demuestra cambios
 #include <ncurses.h>
 #include <time.h>
 #include <stdio.h>
