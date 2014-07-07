@@ -1,9 +1,37 @@
 #include <ncurses.h>
+#include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
-#include <iostream>
-#include <stdlib.h>
+
 using namespace std;
+
+int body[200][2];
+int h=1;
+int score = 0;
+int tam = 15;
+int x = 10, y = 12;
+int dir=3;
+int ch;
+int ya=20 , xb=20;
+void guardar_posicion(){
+	body[h][0] = x;
+	body[h][1] = y;
+	h ++;
+	if(h == tam) h = 1;
+	}
+	
+void pintar_body(){
+    for (int i =1; i<tam;i++){
+	mvprintw(body[i][1], body[i][0], "o"); 	
+		}
+    	
+}	
+
+void borrar_body(){
+	   
+	mvprintw(body[h][1], body[h][0], " "); 	
+		
+}
 
 void pantalla(int N, int M){
 	for(int i=0;i<N;i++)//filas
@@ -21,98 +49,90 @@ void pantalla(int N, int M){
 	   move(N,j+1);
 	   addch(ACS_CKBOARD);
 	}
-mvprintw(0,30,"Snaaaake !");
+	mvprintw(0,30,"Snaaaake !");
 }
 
-void serpiente(int y, int x){
-
-  mvprintw(y,x,"oooooooo");
-  
-}
-
-void comida(int a, int b){
-	mvprintw(a,b,"X");
-}
-
-void gen_comida(int& a, int& b){
-	srand(time(NULL));
-	
-	a = ((rand())%30)+1;
-	b = ((rand())%70)+1;
-    comida(a,b);	
-}
-
-void score(int N, int M){
+void puntos(){
 	mvprintw(30,27,"SCORE 00000");
+
+}
+
+void mov_snake(){
 	
+	  switch( ch ) {
+        case KEY_UP: 
+        if( dir != 2)  
+         dir = 1;
+        break;
+        case KEY_DOWN:
+          if(dir !=1)
+          dir = 2;
+        break;
+        case KEY_RIGHT: 
+        if(dir != 4)
+        dir=3; 
+        break;
+        case KEY_LEFT: 
+        if(dir !=3)
+        dir=4; 
+        break;
+    }
+	}
+
+void comida(){
+	srand(time(NULL));
+    if(x == xb && y == ya){
+	ya = ((rand()%28)+2);
+	xb = ((rand()%68)+2);
+	
+	tam++;
+	mvprintw(ya,xb,"X");
+  
+  }
+}
+
+bool fin(){
+	if(x == 0 || x==70 ||y==0 ||y==30)	
+	return true;
+				
+else 
+return false;
 }
 
 int main()
 {
-    int x = 10;
-    int y = 10;
-    int N = 30;
-    int M = 70;
-    int ch;
-    int op; 
- cout<<"==================="<<endl;
- cout<<"   MENU DE SNAKE   "<<endl;
- cout<<"==================="<<endl;
- cout<<"                   "<<endl; 
- cout<<"1. Jugar"<<endl;
- cout<<"2. Salir"<<endl;
- cin>>op;
-  switch(op){
-	  
-	  case 1:
+
+	int N = 30;
+	int M = 70;
   
+    
     initscr();
     curs_set(0);
     keypad(stdscr, TRUE);     
     noecho();
-    
-    int a,b;
-	
-	gen_comida(a,b);
-		
-    while (1)
+    pantalla(N,M);
+   	mvprintw(ya,xb,"X");
+    while (1 && !fin())
     {
-	    pantalla(N,M); 
-        comida(a,b);
-        serpiente(y,x);
-        score(N,M);
-       
-        // verificar que serpiente comio, y generar comida otra vez
+	
+	
+        puntos();
+        borrar_body();
+        guardar_posicion();
+        pintar_body();
+        comida();
+		timeout(100);   
         ch = getch();
-        if (ch == KEY_DOWN)
-        {
-            y++;
-            clear();
-        }
-        if (ch == KEY_UP)
-        {
-            y--;
-            clear();
-		}
-        if (ch == KEY_LEFT)
-        {
-            x--;
-            clear();
-        }
-        if (ch == KEY_RIGHT)
-        {
-            x++;
-            clear();
-        }
- 
-	refresh();
-	  }
-    endwin(); 
-
+        mov_snake();
+        
+    if( dir == 1) y--;
+    if( dir == 2) y++;
+    if( dir == 3) x++;
+    if( dir == 4) x--;   
+        refresh();
+    }
+    
+    endwin();         
     return 0;
-    break;
-    case 2: 
-    return 0;
-    break;
-}  
 }
+
